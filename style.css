@@ -10,17 +10,19 @@ body {
   background: #fff;
   padding: 20px;
   border-radius: 10px;
-  width: 300px;
+  width: 350px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 h1 {
   text-align: center;
+  font-weight: bold;
 }
 
 .input-section {
   display: flex;
   gap: 10px;
+  margin-top: 10px;
 }
 
 #task-input {
@@ -32,22 +34,57 @@ h1 {
   padding: 8px 12px;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+.task-list {
   margin-top: 20px;
 }
 
-li {
+.task-item {
   display: flex;
   justify-content: space-between;
-  padding: 8px;
+  align-items: center;
   background: #eee;
+  padding: 8px;
   margin-bottom: 5px;
   border-radius: 5px;
 }
 
-li.done {
+.task-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+.task-text.done {
   text-decoration: line-through;
   color: gray;
+}
+
+button.delete-btn {
+  padding: 5px 10px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.tab-btn {
+  padding: 6px 10px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #aaa;
+}
+
+.hidden {
+  display: none;
 }
