@@ -195,3 +195,13 @@ window.addEventListener('load', () => {
     onEnd: () => saveTabOrder()
   });
 });
+
+.tab-close {
+  margin-left: 8px;
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+}
+.tab-close:hover {
+  color: darkred;
+}
