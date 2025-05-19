@@ -85,16 +85,6 @@ button.delete-btn {
   background: #aaa;
 }
 
-.tab-close {
-  margin-left: 8px;
-  color: red;
-  font-weight: bold;
-  cursor: pointer;
-}
-.tab-close:hover {
-  color: darkred;
-}
-
 .hidden {
   display: none;
 }
