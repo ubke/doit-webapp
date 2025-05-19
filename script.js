@@ -3,8 +3,8 @@ const taskListsContainer = document.getElementById('task-lists');
 const addTabBtn = document.getElementById('add-tab');
 
 let currentTab = '';
+let tabNames = {}; // ✅ タブ名管理用オブジェクト
 
-// ✅ タブ追加ボタンで最大30個までタブを作成できるようにする
 addTabBtn.addEventListener('click', () => {
   const tabCount = document.querySelectorAll('.tab-btn').length;
   if (tabCount >= 30) {
@@ -12,21 +12,34 @@ addTabBtn.addEventListener('click', () => {
     return;
   }
   const newTabId = `tab${tabCount + 1}`;
-  createTab(newTabId, `リスト${tabCount + 1}`);
+  const newTabName = `リスト${tabCount + 1}`;
+  tabNames[newTabId] = newTabName;
+  createTab(newTabId, newTabName);
   switchTab(newTabId);
   saveTabNames();
 });
 
 function createTab(tabId, label) {
-  // タブボタン作成
   const tabBtn = document.createElement('button');
   tabBtn.className = 'tab-btn';
   tabBtn.dataset.tab = tabId;
-  tabBtn.textContent = label;
+
+  // ✅ タブ名テキスト要素
+  const tabLabel = document.createElement('span');
+  tabLabel.textContent = label;
+  tabLabel.addEventListener('dblclick', () => {
+    const newName = prompt('新しいタブ名を入力してください：', tabLabel.textContent);
+    if (newName && newName.trim()) {
+      tabLabel.textContent = newName.trim();
+      tabNames[tabId] = newName.trim();
+      saveTabNames();
+    }
+  });
+
+  tabBtn.appendChild(tabLabel);
   tabBtn.addEventListener('click', () => switchTab(tabId));
   tabsContainer.appendChild(tabBtn);
 
-  // タスクリスト作成
   const list = document.createElement('div');
   list.className = 'task-list hidden';
   list.id = tabId;
@@ -45,7 +58,6 @@ function switchTab(tabId) {
   }
 }
 
-// ✅ タスク保存と読み込み機能は従来通り維持
 function saveTasks() {
   const data = {};
   document.querySelectorAll('.task-list').forEach(list => {
@@ -60,16 +72,30 @@ function saveTasks() {
   localStorage.setItem('todoData', JSON.stringify(data));
 }
 
+function saveTabNames() {
+  localStorage.setItem('tabNames', JSON.stringify(tabNames));
+}
+
+function loadTabNames() {
+  const stored = localStorage.getItem('tabNames');
+  if (stored) tabNames = JSON.parse(stored);
+}
+
 function loadTasks() {
   const data = JSON.parse(localStorage.getItem('todoData') || '{}');
+  loadTabNames();
   const savedTabs = Object.keys(data);
   if (savedTabs.length === 0) {
-    createTab('tab1', 'リスト1');
-    switchTab('tab1');
+    const defaultId = 'tab1';
+    const defaultName = 'リスト1';
+    tabNames[defaultId] = defaultName;
+    createTab(defaultId, defaultName);
+    switchTab(defaultId);
     return;
   }
   savedTabs.forEach((tabId, index) => {
-    createTab(tabId, `リスト${index + 1}`);
+    const name = tabNames[tabId] || `リスト${index + 1}`;
+    createTab(tabId, name);
     data[tabId].forEach(task => addTask(task.text, task.done, document.getElementById(tabId)));
   });
   switchTab(savedTabs[0]);
