@@ -11,12 +11,13 @@ addTabBtn.addEventListener('click', () => {
     alert('タブは最大30個までです');
     return;
   }
-  const newTabId = `tab${tabCount + 1}`;
+  const newTabId = `tab${Date.now()}`; // ✅ 一意なIDにするためタイムスタンプ
   const newTabName = `リスト${tabCount + 1}`;
   tabNames[newTabId] = newTabName;
   createTab(newTabId, newTabName);
   switchTab(newTabId);
   saveTabNames();
+  saveTabOrder();
 });
 
 function createTab(tabId, label) {
@@ -24,7 +25,6 @@ function createTab(tabId, label) {
   tabBtn.className = 'tab-btn';
   tabBtn.dataset.tab = tabId;
 
-  // ✅ タブ名テキスト要素
   const tabLabel = document.createElement('span');
   tabLabel.textContent = label;
   tabLabel.addEventListener('dblclick', () => {
@@ -76,6 +76,16 @@ function saveTabNames() {
   localStorage.setItem('tabNames', JSON.stringify(tabNames));
 }
 
+function saveTabOrder() {
+  const order = Array.from(document.querySelectorAll('.tab-btn')).map(btn => btn.dataset.tab);
+  localStorage.setItem('tabOrder', JSON.stringify(order));
+}
+
+function loadTabOrder() {
+  const stored = localStorage.getItem('tabOrder');
+  return stored ? JSON.parse(stored) : null;
+}
+
 function loadTabNames() {
   const stored = localStorage.getItem('tabNames');
   if (stored) tabNames = JSON.parse(stored);
@@ -84,21 +94,26 @@ function loadTabNames() {
 function loadTasks() {
   const data = JSON.parse(localStorage.getItem('todoData') || '{}');
   loadTabNames();
-  const savedTabs = Object.keys(data);
-  if (savedTabs.length === 0) {
-    const defaultId = 'tab1';
+  const tabOrder = loadTabOrder();
+  const tabIds = tabOrder || Object.keys(data);
+
+  if (tabIds.length === 0) {
+    const defaultId = `tab${Date.now()}`;
     const defaultName = 'リスト1';
     tabNames[defaultId] = defaultName;
     createTab(defaultId, defaultName);
     switchTab(defaultId);
     return;
   }
-  savedTabs.forEach((tabId, index) => {
+
+  tabIds.forEach((tabId, index) => {
     const name = tabNames[tabId] || `リスト${index + 1}`;
     createTab(tabId, name);
-    data[tabId].forEach(task => addTask(task.text, task.done, document.getElementById(tabId)));
+    if (data[tabId]) {
+      data[tabId].forEach(task => addTask(task.text, task.done, document.getElementById(tabId)));
+    }
   });
-  switchTab(savedTabs[0]);
+  switchTab(tabIds[0]);
 }
 
 function addTask(text, done = false, container = null) {
@@ -151,4 +166,12 @@ addBtn.addEventListener('click', () => {
   input.value = '';
 });
 
-window.addEventListener('load', loadTasks);
+window.addEventListener('load', () => {
+  loadTasks();
+
+  // ✅ タブ並び替え機能の初期化
+  Sortable.create(tabsContainer, {
+    animation: 150,
+    onEnd: () => saveTabOrder()
+  });
+});
