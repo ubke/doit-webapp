@@ -2,32 +2,16 @@
 const tabsContainer = document.getElementById('tabs');
 const taskListsContainer = document.getElementById('task-lists');
 const addTabBtn = document.getElementById('add-tab');
-
 let currentTab = '';
-let tabNames = {}; // タブIDと表示名のマッピング
+let tabNames = {};
 
-// タブ追加処理
-addTabBtn.addEventListener('click', () => {
-  const tabCount = document.querySelectorAll('.tab-btn').length;
-  if (tabCount >= 30) {
-    alert('タブは最大30個までです');
-    return;
-  }
-  const newTabId = `tab${Date.now()}`;
-  const newTabName = `リスト${tabCount + 1}`;
-  tabNames[newTabId] = newTabName;
-  createTab(newTabId, newTabName);
-  switchTab(newTabId);
-  saveTabNames();
-  saveTabOrder();
-});
-
-// タブを作成
+// タブ作成（削除・編集・切り替え・並び替え・リスト削除対応）
 function createTab(tabId, label) {
   const tabBtn = document.createElement('button');
   tabBtn.className = 'tab-btn';
   tabBtn.dataset.tab = tabId;
 
+  // タブ名の表示
   const tabLabel = document.createElement('span');
   tabLabel.textContent = label;
   tabLabel.addEventListener('dblclick', () => {
@@ -39,24 +23,67 @@ function createTab(tabId, label) {
     }
   });
 
+  // タブ削除（✕）
+  const tabClose = document.createElement('span');
+  tabClose.textContent = '✕';
+  tabClose.className = 'tab-close';
+  tabClose.title = 'このタブを削除';
+  tabClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (confirm('このタブを削除しますか？')) {
+      delete tabNames[tabId];
+      const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
+      delete todoData[tabId];
+      localStorage.setItem('todoData', JSON.stringify(todoData));
+      tabBtn.remove();
+      const taskList = document.getElementById(tabId);
+      if (taskList) taskList.remove();
+      saveTabNames();
+      saveTabOrder();
+      saveTasks();
+      const firstTab = document.querySelector('.tab-btn');
+      if (firstTab) switchTab(firstTab.dataset.tab);
+    }
+  });
+
   tabBtn.appendChild(tabLabel);
+  tabBtn.appendChild(tabClose);
   tabBtn.addEventListener('click', () => switchTab(tabId));
   tabsContainer.appendChild(tabBtn);
 
-  // タスクリスト作成
+  // リスト生成
+  const deleteListBtn = document.createElement('button');
+  deleteListBtn.textContent = '🗑 このリストを削除';
+  deleteListBtn.className = 'delete-list-btn';
+  deleteListBtn.addEventListener('click', () => {
+    if (confirm('このリスト（タブ）を削除しますか？')) {
+      delete tabNames[tabId];
+      const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
+      delete todoData[tabId];
+      localStorage.setItem('todoData', JSON.stringify(todoData));
+      tabBtn.remove();
+      list.remove();
+      saveTabNames();
+      saveTabOrder();
+      saveTasks();
+      const firstTab = document.querySelector('.tab-btn');
+      if (firstTab) switchTab(firstTab.dataset.tab);
+    }
+  });
+
   const list = document.createElement('div');
   list.className = 'task-list hidden';
   list.id = tabId;
+  list.appendChild(deleteListBtn);
   taskListsContainer.appendChild(list);
 
-  // ✅ タスク並び替え初期化
   Sortable.create(list, {
     animation: 150,
     onEnd: () => saveTasks()
   });
 }
 
-// アクティブタブ切り替え
+// タブ切替
 function switchTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.task-list').forEach(list => list.classList.add('hidden'));
@@ -69,71 +96,7 @@ function switchTab(tabId) {
   }
 }
 
-// タスク保存
-function saveTasks() {
-  const data = {};
-  document.querySelectorAll('.task-list').forEach(list => {
-    const tasks = [];
-    list.querySelectorAll('.task-item').forEach(item => {
-      const text = item.querySelector('.task-text').textContent;
-      const done = item.querySelector('input[type="checkbox"]').checked;
-      tasks.push({ text, done });
-    });
-    data[list.id] = tasks;
-  });
-  localStorage.setItem('todoData', JSON.stringify(data));
-}
-
-// タブ名保存
-function saveTabNames() {
-  localStorage.setItem('tabNames', JSON.stringify(tabNames));
-}
-
-// タブ順序保存
-function saveTabOrder() {
-  const order = Array.from(document.querySelectorAll('.tab-btn')).map(btn => btn.dataset.tab);
-  localStorage.setItem('tabOrder', JSON.stringify(order));
-}
-
-// タブ順序読み込み
-function loadTabOrder() {
-  const stored = localStorage.getItem('tabOrder');
-  return stored ? JSON.parse(stored) : null;
-}
-
-// タブ名読み込み
-function loadTabNames() {
-  const stored = localStorage.getItem('tabNames');
-  if (stored) tabNames = JSON.parse(stored);
-}
-
-// タスク読み込みとタブ復元
-function loadTasks() {
-  const data = JSON.parse(localStorage.getItem('todoData') || '{}');
-  loadTabNames();
-  const tabOrder = loadTabOrder();
-  const tabIds = tabOrder || Object.keys(data);
-
-  if (tabIds.length === 0) {
-    const defaultId = `tab${Date.now()}`;
-    const defaultName = 'リスト1';
-    tabNames[defaultId] = defaultName;
-    createTab(defaultId, defaultName);
-    switchTab(defaultId);
-    return;
-  }
-
-  tabIds.forEach((tabId, index) => {
-    const name = tabNames[tabId] || `リスト${index + 1}`;
-    createTab(tabId, name);
-    if (data[tabId]) {
-      data[tabId].forEach(task => addTask(task.text, task.done, document.getElementById(tabId)));
-    }
-  });
-  switchTab(tabIds[0]);
-}
-
-// タスクを作成
+// タスク追加
 function addTask(text, done = false, container = null) {
   if (!text) return;
   const activeTab = container || document.getElementById(currentTab);
@@ -170,26 +133,80 @@ function addTask(text, done = false, container = null) {
 
   taskItem.appendChild(left);
   taskItem.appendChild(delBtn);
-
   activeTab.appendChild(taskItem);
   saveTasks();
 }
 
-// タスク追加イベント
-const input = document.getElementById('task-input');
-const addBtn = document.getElementById('add-btn');
-addBtn.addEventListener('click', () => {
-  const text = input.value.trim();
+// 保存系
+function saveTasks() {
+  const data = {};
+  document.querySelectorAll('.task-list').forEach(list => {
+    const tasks = [];
+    list.querySelectorAll('.task-item').forEach(item => {
+      const text = item.querySelector('.task-text').textContent;
+      const done = item.querySelector('input[type="checkbox"]').checked;
+      tasks.push({ text, done });
+    });
+    data[list.id] = tasks;
+  });
+  localStorage.setItem('todoData', JSON.stringify(data));
+}
+
+function saveTabNames() {
+  localStorage.setItem('tabNames', JSON.stringify(tabNames));
+}
+
+function saveTabOrder() {
+  const order = Array.from(document.querySelectorAll('.tab-btn')).map(btn => btn.dataset.tab);
+  localStorage.setItem('tabOrder', JSON.stringify(order));
+}
+
+function loadTabNames() {
+  const stored = localStorage.getItem('tabNames');
+  if (stored) tabNames = JSON.parse(stored);
+}
+
+function loadTabOrder() {
+  const stored = localStorage.getItem('tabOrder');
+  return stored ? JSON.parse(stored) : null;
+}
+
+// 初期化・復元
+function loadTasks() {
+  const data = JSON.parse(localStorage.getItem('todoData') || '{}');
+  loadTabNames();
+  const tabOrder = loadTabOrder();
+  const tabIds = tabOrder || Object.keys(data);
+
+  if (tabIds.length === 0) {
+    const defaultId = `tab${Date.now()}`;
+    const defaultName = 'リスト1';
+    tabNames[defaultId] = defaultName;
+    createTab(defaultId, defaultName);
+    switchTab(defaultId);
+    return;
+  }
+
+  tabIds.forEach((tabId, index) => {
+    const name = tabNames[tabId] || `リスト${index + 1}`;
+    createTab(tabId, name);
+    if (data[tabId]) {
+      data[tabId].forEach(task => addTask(task.text, task.done, document.getElementById(tabId)));
+    }
+  });
+  switchTab(tabIds[0]);
+}
+
+// イベント登録
+document.getElementById('add-btn').addEventListener('click', () => {
+  const text = document.getElementById('task-input').value.trim();
   if (!text || !currentTab) return;
   addTask(text);
-  input.value = '';
+  document.getElementById('task-input').value = '';
 });
 
-// 初期読み込み処理
 window.addEventListener('load', () => {
   loadTasks();
-
-  // タブ並び替え初期化
   Sortable.create(tabsContainer, {
     animation: 150,
     onEnd: () => saveTabOrder()
