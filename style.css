@@ -1,90 +1,102 @@
 body {
   font-family: sans-serif;
-  background: #f2f2f2;
-  display: flex;
-  justify-content: center;
-  padding: 50px;
+  background: #f7f7f7;
+  margin: 0;
+  padding: 20px;
 }
 
 .container {
-  background: #fff;
+  max-width: 700px;
+  margin: auto;
+  background: white;
   padding: 20px;
-  border-radius: 10px;
-  width: 350px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
 }
 
-h1 {
-  text-align: center;
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.tab-btn {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  background: #eee;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.tab-close {
+  margin-left: 6px;
+  color: red;
   font-weight: bold;
+  cursor: pointer;
+}
+
+.tab-close:hover {
+  color: darkred;
 }
 
 .input-section {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-#task-input {
-  flex: 1;
-  padding: 8px;
-}
-
-#add-btn {
-  padding: 8px 12px;
+  margin-bottom: 10px;
 }
 
 .task-list {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .task-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #eee;
+  background: #fafafa;
+  border: 1px solid #ddd;
   padding: 8px;
   margin-bottom: 5px;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 .task-left {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-input[type="checkbox"] {
-  transform: scale(1.2);
+  gap: 8px;
 }
 
 .task-text.done {
   text-decoration: line-through;
-  color: gray;
+  color: #888;
 }
 
-button.delete-btn {
-  padding: 5px 10px;
-}
-
-.tabs {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.tab-btn {
-  padding: 6px 10px;
+.delete-btn {
+  background: red;
+  color: white;
   border: none;
-  background: #ddd;
+  padding: 4px 8px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
-.tab-btn.active {
-  background: #aaa;
+.delete-btn:hover {
+  background: darkred;
 }
 
-.hidden {
-  display: none;
+.delete-list-btn {
+  background-color: #ffdddd;
+  border: 1px solid #cc0000;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.delete-list-btn:hover {
+  background-color: #ffcccc;
 }
