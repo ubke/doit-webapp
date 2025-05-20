@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +11,7 @@
     <h1>ToDoリスト</h1>
 
     <div class="tabs" id="tabs">
-      <!-- ✅ タブはJavaScriptで動的に追加され、並び替えが可能になります -->
+      <!-- タブボタンが動的に挿入されます -->
     </div>
     <button id="add-tab">＋ タブ追加</button>
 
@@ -20,10 +21,11 @@
     </div>
 
     <div id="task-lists">
-      <!-- ✅ 各タブのタスクリストもJavaScriptで動的に追加されます -->
+      <!-- タスクリストが動的に挿入されます -->
     </div>
   </div>
-  <!-- ✅ 並び替え用ライブラリ読み込み -->
+
+  <!-- SortableJS 読み込み -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <script src="script.js"></script>
 </body>
