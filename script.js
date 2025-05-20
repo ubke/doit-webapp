@@ -1,4 +1,3 @@
-// DOM取得
 const tabsContainer = document.getElementById('tabs');
 const taskListsContainer = document.getElementById('task-lists');
 const addTabBtn = document.getElementById('add-tab');
@@ -23,7 +22,7 @@ function createTab(tabId, label) {
     }
   });
 
-  // ✅ タブ削除ボタン（✕を押すと確認ダイアログ表示 → 削除処理）
+  // ✅ タブ削除ボタン
   const tabClose = document.createElement('span');
   tabClose.textContent = '✕';
   tabClose.className = 'tab-close';
@@ -51,13 +50,11 @@ function createTab(tabId, label) {
   tabBtn.addEventListener('click', () => switchTab(tabId));
   tabsContainer.appendChild(tabBtn);
 
-  // ✅ タブに対応するタスク表示エリアも生成
   const list = document.createElement('div');
   list.className = 'task-list hidden';
   list.id = tabId;
   taskListsContainer.appendChild(list);
 
-  // ✅ タスクリスト並び替え初期化
   Sortable.create(list, {
     animation: 150,
     onEnd: () => saveTasks()
@@ -69,9 +66,15 @@ function createTab(tabId, label) {
     todoData[tabId] = [];
     localStorage.setItem('todoData', JSON.stringify(todoData));
   }
+
+  // ✅ 各タブに独立したタスクを表示
+  const savedTasks = todoData[tabId] || [];
+  savedTasks.forEach(task => {
+    addTask(task.text, task.done, list);
+  });
 }
 
-// ✅ タブ切り替え
+// ✅ タブ切替
 function switchTab(tabId) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.task-list').forEach(list => list.classList.add('hidden'));
@@ -84,7 +87,7 @@ function switchTab(tabId) {
   }
 }
 
-// ✅ タスク追加処理
+// ✅ タスク追加
 function addTask(text, done = false, container = null) {
   if (!text) return;
   const activeTab = container || document.getElementById(currentTab);
@@ -125,7 +128,7 @@ function addTask(text, done = false, container = null) {
   saveTasks();
 }
 
-// ✅ タスク保存処理
+// ✅ 保存系関数群
 function saveTasks() {
   const data = {};
   document.querySelectorAll('.task-list').forEach(list => {
@@ -159,7 +162,7 @@ function loadTabOrder() {
   return stored ? JSON.parse(stored) : null;
 }
 
-// ✅ タスク・タブの復元
+// ✅ 初期読み込み
 function loadTasks() {
   const data = JSON.parse(localStorage.getItem('todoData') || '{}');
   loadTabNames();
@@ -178,9 +181,6 @@ function loadTasks() {
   tabIds.forEach((tabId, index) => {
     const name = tabNames[tabId] || `リスト${index + 1}`;
     createTab(tabId, name);
-    if (data[tabId]) {
-      data[tabId].forEach(task => addTask(task.text, task.done, document.getElementById(tabId)));
-    }
   });
 
   switchTab(tabIds[0]);
