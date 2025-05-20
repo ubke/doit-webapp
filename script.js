@@ -130,17 +130,17 @@ function addTask(text, done = false, container = null) {
 
 // ✅ 保存系関数群
 function saveTasks() {
-  const data = {};
-  document.querySelectorAll('.task-list').forEach(list => {
-    const tasks = [];
-    list.querySelectorAll('.task-item').forEach(item => {
-      const text = item.querySelector('.task-text').textContent;
-      const done = item.querySelector('input[type="checkbox"]').checked;
-      tasks.push({ text, done });
-    });
-    data[list.id] = tasks;
+  const list = document.getElementById(currentTab);
+  const tasks = [];
+  list.querySelectorAll('.task-item').forEach(item => {
+    const text = item.querySelector('.task-text').textContent;
+    const done = item.querySelector('input[type="checkbox"]').checked;
+    tasks.push({ text, done });
   });
-  localStorage.setItem('todoData', JSON.stringify(data));
+
+  const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
+  todoData[currentTab] = tasks;
+  localStorage.setItem('todoData', JSON.stringify(todoData));
 }
 
 function saveTabNames() {
