@@ -3,9 +3,9 @@ const taskListsContainer = document.getElementById('task-lists');
 const addTabBtn = document.getElementById('add-tab');
 let currentTab = '';
 let tabNames = {};
-let taskLists = {}; // ← 各タブごとの task-list 要素を記憶
+let taskLists = {}; // タブIDごとのタスクリスト要素を保持
 
-// ✅ タブ作成（表示・削除・名前変更）
+// ✅ タブを作成
 function createTab(tabId, label) {
   const tabBtn = document.createElement('button');
   tabBtn.className = 'tab-btn';
@@ -20,18 +20,6 @@ function createTab(tabId, label) {
       tabNames[tabId] = newName.trim();
       saveTabNames();
     }
-  })
-  
-  // ▼ タブにだけそのタブのタスクを描画する
-  const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
-  if (!todoData[tabId]) {
-    todoData[tabId] = [];
-    localStorage.setItem('todoData', JSON.stringify(todoData));
-  }
-
-  const savedTasks = todoData[tabId];
-  savedTasks.forEach(task => {
-    addTask(task.text, task.done, list);
   });
 
   const tabClose = document.createElement('span');
@@ -45,14 +33,11 @@ function createTab(tabId, label) {
       const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
       delete todoData[tabId];
       localStorage.setItem('todoData', JSON.stringify(todoData));
-
       tabBtn.remove();
       if (taskLists[tabId]) taskLists[tabId].remove();
       delete taskLists[tabId];
-
       saveTabNames();
       saveTabOrder();
-
       const firstTab = document.querySelector('.tab-btn');
       if (firstTab) switchTab(firstTab.dataset.tab);
     }
@@ -81,30 +66,28 @@ function createTab(tabId, label) {
   }
 
   const savedTasks = todoData[tabId];
-  savedTasks.forEach(task => addTask(task.text, task.done, list));
+  savedTasks.forEach(task => {
+    addTask(task.text, task.done, list);
+  });
 }
 
-// ✅ タブ切替処理（表示内容を切り替え）
+// ✅ タブ切り替え（表示の切り替え）
 function switchTab(tabId) {
   currentTab = tabId;
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.task-list').forEach(list => list.classList.add('hidden'));
-
   const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-  const activeList = document.getElementById(tabId);
-
+  const activeList = taskLists[tabId];
   if (activeBtn && activeList) {
     activeBtn.classList.add('active');
     activeList.classList.remove('hidden');
   }
 }
 
-// ✅ タスク追加（指定したタブのリストへ追加）
+// ✅ タスク追加（現在のタブにのみ追加）
 function addTask(text, done = false, container = null) {
   if (!text) return;
-
-  const list = container || document.getElementById(currentTab);
-
+  const list = container || taskLists[currentTab];
   const taskItem = document.createElement('div');
   taskItem.className = 'task-item';
 
@@ -142,19 +125,20 @@ function addTask(text, done = false, container = null) {
   saveTasks();
 }
 
-// ✅ 全タブのタスクを保存（タブごとに分けて保存）
+// ✅ 全タブのタスクを localStorage に保存
 function saveTasks() {
-  const list = document.getElementById(currentTab);
-  const tasks = [];
-  list.querySelectorAll('.task-item').forEach(item => {
-    const text = item.querySelector('.task-text').textContent;
-    const done = item.querySelector('input[type="checkbox"]').checked;
-    tasks.push({ text, done });
-  });
-
-  const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
-  todoData[currentTab] = tasks;
-  localStorage.setItem('todoData', JSON.stringify(todoData));
+  const data = {};
+  for (const tabId in taskLists) {
+    const list = taskLists[tabId];
+    const tasks = [];
+    list.querySelectorAll('.task-item').forEach(item => {
+      const text = item.querySelector('.task-text').textContent;
+      const done = item.querySelector('input[type="checkbox"]').checked;
+      tasks.push({ text, done });
+    });
+    data[tabId] = tasks;
+  }
+  localStorage.setItem('todoData', JSON.stringify(data));
 }
 
 function saveTabNames() {
@@ -176,7 +160,7 @@ function loadTabOrder() {
   return stored ? JSON.parse(stored) : null;
 }
 
-// ✅ 初期化：タブとタスクの復元
+// ✅ タブとタスクの初期読み込み
 function loadTasks() {
   const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
   loadTabNames();
@@ -200,7 +184,7 @@ function loadTasks() {
   switchTab(tabIds[0]);
 }
 
-// ✅ タスク追加ボタン
+// ✅ 入力ボタン押下時の処理
 document.getElementById('add-btn').addEventListener('click', () => {
   const text = document.getElementById('task-input').value.trim();
   if (!text || !currentTab) return;
@@ -208,7 +192,7 @@ document.getElementById('add-btn').addEventListener('click', () => {
   document.getElementById('task-input').value = '';
 });
 
-// ✅ ページ読み込み
+// ✅ ページ読み込み時の初期化処理
 window.addEventListener('load', () => {
   loadTasks();
   Sortable.create(tabsContainer, {
