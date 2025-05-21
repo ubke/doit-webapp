@@ -20,6 +20,18 @@ function createTab(tabId, label) {
       tabNames[tabId] = newName.trim();
       saveTabNames();
     }
+  })
+  
+  // ▼ タブにだけそのタブのタスクを描画する
+  const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
+  if (!todoData[tabId]) {
+    todoData[tabId] = [];
+    localStorage.setItem('todoData', JSON.stringify(todoData));
+  }
+
+  const savedTasks = todoData[tabId];
+  savedTasks.forEach(task => {
+    addTask(task.text, task.done, list);
   });
 
   const tabClose = document.createElement('span');
@@ -79,7 +91,7 @@ function switchTab(tabId) {
   document.querySelectorAll('.task-list').forEach(list => list.classList.add('hidden'));
 
   const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-  const activeList = taskLists[tabId];
+  const activeList = document.getElementById(tabId);
 
   if (activeBtn && activeList) {
     activeBtn.classList.add('active');
@@ -90,7 +102,9 @@ function switchTab(tabId) {
 // ✅ タスク追加（指定したタブのリストへ追加）
 function addTask(text, done = false, container = null) {
   if (!text) return;
-  const list = container || taskLists[currentTab];
+
+  const list = container || document.getElementById(currentTab);
+
   const taskItem = document.createElement('div');
   taskItem.className = 'task-item';
 
@@ -130,18 +144,17 @@ function addTask(text, done = false, container = null) {
 
 // ✅ 全タブのタスクを保存（タブごとに分けて保存）
 function saveTasks() {
-  const data = {};
-  for (const tabId in taskLists) {
-    const list = taskLists[tabId];
-    const tasks = [];
-    list.querySelectorAll('.task-item').forEach(item => {
-      const text = item.querySelector('.task-text').textContent;
-      const done = item.querySelector('input[type="checkbox"]').checked;
-      tasks.push({ text, done });
-    });
-    data[tabId] = tasks;
-  }
-  localStorage.setItem('todoData', JSON.stringify(data));
+  const list = document.getElementById(currentTab);
+  const tasks = [];
+  list.querySelectorAll('.task-item').forEach(item => {
+    const text = item.querySelector('.task-text').textContent;
+    const done = item.querySelector('input[type="checkbox"]').checked;
+    tasks.push({ text, done });
+  });
+
+  const todoData = JSON.parse(localStorage.getItem('todoData') || '{}');
+  todoData[currentTab] = tasks;
+  localStorage.setItem('todoData', JSON.stringify(todoData));
 }
 
 function saveTabNames() {
