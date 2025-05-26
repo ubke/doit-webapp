@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ToDoリスト</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDoアプリ</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>ToDoリスト</h1>
+    <div class="app-container">
+        <h1>ToDoリスト</h1>
 
-    <div class="tabs" id="tabs"></div>
-    <button id="add-tab">＋ タブ追加</button>
+        <div class="tab-creation-area">
+            <input type="text" id="new-tab-name-input" placeholder="新しいタブ名を入力">
+            <button id="add-tab-button">タブ追加</button>
+        </div>
 
-    <div class="input-section">
-      <input type="text" id="task-input" placeholder="新しいタスクを入力">
-      <button id="add-btn">追加</button>
+        <div id="tabs-container" class="tabs-container">
+            </div>
+
+        <div id="current-tab-content" class="current-tab-content" style="display: none;">
+            <h2 id="current-tab-title"></h2>
+            <div class="task-input-area">
+                <input type="text" id="new-task-text-input" placeholder="新しいタスクを入力">
+                <button id="add-task-button">タスク追加</button>
+            </div>
+            <ul id="task-list-container" class="task-list-container">
+                </ul>
+        </div>
+
+        <div id="no-active-tab-message" class="no-active-tab-message" style="display: none;">
+            <p>タブを選択するか、新しいタブを作成してください。</p>
+        </div>
     </div>
 
-    <div id="task-lists"></div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-  <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
