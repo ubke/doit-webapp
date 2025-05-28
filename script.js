@@ -15,10 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
         activeTabId: null,
     };
 
+    // --- ユーティリティ関数 --- (変更なし)
     function generateId() {
         return `id-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 5)}`;
     }
 
+    // --- localStorage関連 --- (変更なし)
     function saveState() {
         localStorage.setItem('todoAppState', JSON.stringify(appState));
     }
@@ -36,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- レンダリング関数 ---
     function render() {
         renderTabs();
         renderTasksForActiveTab();
@@ -91,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         taskItem.classList.add('done');
                     }
 
-                    // ドラッグハンドル要素を作成
-                    const dragHandle = document.createElement('span'); // spanでもdivでも可
+                    // ドラッグハンドル要素 (アイコンなし)
+                    const dragHandle = document.createElement('div');
                     dragHandle.className = 'drag-handle';
-                    dragHandle.innerHTML = '&#x2630;'; // 三本線アイコン (☰)
+                    // dragHandle.innerHTML = '&#x2630;'; // アイコンを削除
 
-                    // タスクコンテンツ（チェックボックスとテキスト）をまとめるラッパー
-                    const taskContentWrapper = document.createElement('div');
-                    taskContentWrapper.className = 'task-content-wrapper';
+                    // タスクの主要コンテンツ（チェックボックスとテキスト）
+                    const taskMainContent = document.createElement('div');
+                    taskMainContent.className = 'task-main-content';
 
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
@@ -109,23 +112,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     taskTextSpan.className = 'task-text';
                     taskTextSpan.textContent = task.text;
 
-                    taskContentWrapper.appendChild(checkbox);
-                    taskContentWrapper.appendChild(taskTextSpan);
+                    taskMainContent.appendChild(checkbox);
+                    taskMainContent.appendChild(taskTextSpan);
 
                     const deleteButton = document.createElement('button');
                     deleteButton.className = 'task-delete-button';
                     deleteButton.textContent = '削除';
                     deleteButton.addEventListener('click', () => handleDeleteTask(task.id));
 
-                    // 要素をtaskItemに追加する順序が重要
-                    taskItem.appendChild(dragHandle);        // 1. ドラッグハンドル
-                    taskItem.appendChild(taskContentWrapper); // 2. タスクコンテンツラッパー
-                    taskItem.appendChild(deleteButton);      // 3. 削除ボタン
+                    taskItem.appendChild(dragHandle);       // 1. 透明なドラッグハンドル
+                    taskItem.appendChild(taskMainContent);  // 2. 主要コンテンツ
+                    taskItem.appendChild(deleteButton);     // 3. 削除ボタン
 
                     taskListContainer.appendChild(taskItem);
                 });
             }
-            initializeTasksSortable(); // タスクアイテムが描画された後にSortableを初期化
+            initializeTasksSortable();
         } else {
             currentTabTitle.textContent = '';
             if (tasksSortableInstance) {
@@ -135,16 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateNoActiveTabMessage() {
+    function updateNoActiveTabMessage() { // (変更なし)
         noActiveTabMessage.style.display = appState.activeTabId ? 'none' : 'block';
     }
-    function updateCurrentTabContentVisibility() {
+    function updateCurrentTabContentVisibility() { // (変更なし)
         currentTabContent.style.display = appState.activeTabId ? 'block' : 'none';
     }
 
     let tabsSortableInstance = null;
-    function initializeTabsSortable() {
-        // (この関数は前回のコードから変更ありません)
+    function initializeTabsSortable() { // (変更なし)
         if (tabsSortableInstance) {
             tabsSortableInstance.destroy();
         }
@@ -161,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let tasksSortableInstance = null;
-    function initializeTasksSortable() {
+    function initializeTasksSortable() { // (handleオプションはそのまま)
         if (tasksSortableInstance) {
             tasksSortableInstance.destroy();
             tasksSortableInstance = null;
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tasksSortableInstance = Sortable.create(taskListContainer, {
                 animation: 150,
                 draggable: '.task-item',
-                handle: '.drag-handle', // ★★★ この行を追加/変更 ★★★
+                handle: '.drag-handle', // この指定は維持
                 onEnd: (event) => {
                     const currentActiveTabForSort = appState.tabs.find(tab => tab.id === appState.activeTabId);
                     if (currentActiveTabForSort && currentActiveTabForSort.tasks) {
@@ -185,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- イベントハンドラ --- (handleAddTab, handleDeleteTab, handleRenameTab, handleSwitchTab, handleAddTask, handleDeleteTask, handleToggleTaskDone は前回のコードから変更ありません)
+    // --- イベントハンドラ --- (変更なし)
     function handleAddTab() {
         const newTabName = newTabNameInput.value.trim();
         if (newTabName) {
@@ -273,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
     // --- イベントリスナーの登録 --- (変更なし)
     addTabButton.addEventListener('click', handleAddTab);
     newTabNameInput.addEventListener('keypress', (event) => {
