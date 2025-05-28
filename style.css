@@ -10,10 +10,9 @@
 }
 
 .task-item {
-    display: flex; /* Flexboxを使用してハンドルとコンテンツを横並びにする */
-    align-items: center; /* 要素を垂直方向中央揃え */
-    justify-content: space-between; /* 主に削除ボタンを右端に配置するため */
-    padding: 8px 12px; /* パディングを少し調整（ハンドル分を考慮） */
+    display: flex;
+    align-items: center;
+    padding: 12px; /* ハンドル追加前のパディングに戻すか、微調整 */
     background-color: #fdfdfd;
     border: 1px solid #eee;
     border-radius: 4px;
@@ -30,32 +29,31 @@
     color: #95a5a6;
 }
 
-/* ドラッグハンドル */
+/* 透明なドラッグハンドル */
 .drag-handle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 8px 10px 0; /* ハンドルのクリックエリアを確保 */
-    cursor: grab; /* ドラッグ可能なカーソル */
-    color: #7f8c8d;
-    font-size: 1.2em; /* アイコンのサイズ */
-    min-width: 20px; /* ハンドルの最小幅 */
-    /* touch-action: none; */ /* スマホでのスクロール誤動作を防ぐために検討（Sortable.jsが内部で処理するかも） */
+    flex: 0 0 30px; /* 幅を30pxに固定 (伸縮しない)。これが左側のドラッグエリア */
+    /* height: 100%; /* もし親要素の高さに合わせたい場合。task-itemに高さ指定があれば */
+    /* align-self: stretch; */ /* task-itemの高さ一杯に広げる */
+    cursor: grab;
+    background-color: transparent; /* 背景を透明に */
+    border: none;
+    padding: 0; /* パディングなし */
+    /* アイコンを表示しないので、innerHTMLは空にするか、font-size: 0; など */
 }
 .drag-handle:active {
     cursor: grabbing;
 }
 
-.task-content-wrapper { /* ハンドル以外のコンテンツをまとめるラッパー */
+/* タスクの主要コンテンツ（チェックボックスとテキスト） */
+.task-main-content {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 10px; /* チェックボックスとテキスト間のスペース */
     flex-grow: 1; /* 残りのスペースを埋める */
-    margin-left: 5px; /* ハンドルとの間に少しスペース */
+    /* margin-left: 5px; /* ハンドルとコンテンツの間にスペースが必要な場合調整 */
 }
 
 .task-item input[type="checkbox"] {
-    /* margin-right: 8px; (task-content-wrapperのgapで調整) */
     cursor: pointer;
     width: 18px;
     height: 18px;
@@ -64,10 +62,11 @@
 .task-text {
     font-size: 1rem;
     color: #2c3e50;
-    word-break: break-word; /* 長いテキストがはみ出ないように */
+    word-break: break-word;
 }
 
 .task-delete-button {
+    flex-shrink: 0; /* 縮まないように */
     background-color: #e74c3c;
     color: white;
     border: none;
@@ -76,7 +75,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     transition: background-color 0.2s;
-    margin-left: 10px; /* 右側のコンテンツとの間にスペース */
+    margin-left: 10px; /* テキスト部分との間にマージン */
 }
 
 .task-delete-button:hover {
