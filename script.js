@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskListContainer = document.getElementById('task-list-container');
     const noActiveTabMessage = document.getElementById('no-active-tab-message');
 
+    // アプリケーションの状態 (変更なし)
     let appState = {
         tabs: [],
         activeTabId: null,
@@ -31,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
             appState = JSON.parse(storedState);
         }
         appState.tabs.forEach(tab => {
-            if (!tab.tasks) tab.tasks = [];
+            if (!tab.tasks) {
+                tab.tasks = [];
+            }
             tab.tasks.forEach(task => {
                 if (!task.id) task.id = generateId();
             });
@@ -41,13 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- レンダリング関数 ---
     function render() {
         renderTabs();
-        renderTasksForActiveTab();
+        renderTasksForActiveTab(); // この中でタスクのSortableも初期化される
         updateNoActiveTabMessage();
         updateCurrentTabContentVisibility();
     }
 
     function renderTabs() {
-        // (この関数は前回のコードから変更ありません)
         tabsContainer.innerHTML = '';
         appState.tabs.forEach(tab => {
             const tabButton = document.createElement('button');
@@ -89,19 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeTab.tasks.forEach(task => {
                     const taskItem = document.createElement('li');
                     taskItem.className = 'task-item';
-                    taskItem.dataset.taskId = task.id;
+                    taskItem.dataset.taskId = task.id; // SortableJSがアイテムを識別するためにも利用可能
                     if (task.done) {
                         taskItem.classList.add('done');
                     }
 
-                    // ドラッグハンドル要素 (アイコンなし)
-                    const dragHandle = document.createElement('div');
-                    dragHandle.className = 'drag-handle';
-                    // dragHandle.innerHTML = '&#x2630;'; // アイコンを削除
-
-                    // タスクの主要コンテンツ（チェックボックスとテキスト）
-                    const taskMainContent = document.createElement('div');
-                    taskMainContent.className = 'task-main-content';
+                    const taskContentDiv = document.createElement('div');
+                    taskContentDiv.className = 'task-content';
 
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
@@ -112,25 +108,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     taskTextSpan.className = 'task-text';
                     taskTextSpan.textContent = task.text;
 
-                    taskMainContent.appendChild(checkbox);
-                    taskMainContent.appendChild(taskTextSpan);
+                    taskContentDiv.appendChild(checkbox);
+                    taskContentDiv.appendChild(taskTextSpan);
 
                     const deleteButton = document.createElement('button');
                     deleteButton.className = 'task-delete-button';
                     deleteButton.textContent = '削除';
                     deleteButton.addEventListener('click', () => handleDeleteTask(task.id));
 
-                    taskItem.appendChild(dragHandle);       // 1. 透明なドラッグハンドル
-                    taskItem.appendChild(taskMainContent);  // 2. 主要コンテンツ
-                    taskItem.appendChild(deleteButton);     // 3. 削除ボタン
-
+                    taskItem.appendChild(taskContentDiv);
+                    taskItem.appendChild(deleteButton);
                     taskListContainer.appendChild(taskItem);
                 });
+            } else {
+                // タスクがない場合のメッセージなどをここに表示しても良い
             }
-            initializeTasksSortable();
+            initializeTasksSortable(); // ★タスクアイテムが描画された後にSortableを初期化
         } else {
             currentTabTitle.textContent = '';
-            if (tasksSortableInstance) {
+            if (tasksSortableInstance) { // アクティブなタブがない場合はタスクのSortableインスタンスを破棄
                 tasksSortableInstance.destroy();
                 tasksSortableInstance = null;
             }
@@ -144,6 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentTabContent.style.display = appState.activeTabId ? 'block' : 'none';
     }
 
+
+    // --- SortableJS 初期化 ---
     let tabsSortableInstance = null;
     function initializeTabsSortable() { // (変更なし)
         if (tabsSortableInstance) {
@@ -162,23 +160,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let tasksSortableInstance = null;
-    function initializeTasksSortable() { // (handleオプションはそのまま)
+    function initializeTasksSortable() {
         if (tasksSortableInstance) {
             tasksSortableInstance.destroy();
-            tasksSortableInstance = null;
+            tasksSortableInstance = null; // 明示的にnullを代入
         }
         const activeTab = appState.tabs.find(tab => tab.id === appState.activeTabId);
+        // タスクリストコンテナに実際にタスクアイテムが存在する場合のみSortableを初期化
         if (activeTab && taskListContainer.children.length > 0) {
             tasksSortableInstance = Sortable.create(taskListContainer, {
                 animation: 150,
-                draggable: '.task-item',
-                handle: '.drag-handle', // この指定は維持
+                draggable: '.task-item', // このクラス名を持つ要素がドラッグ可能になる
                 onEnd: (event) => {
+                    // onEndイベント内で再度アクティブタブを取得して操作するのが安全
                     const currentActiveTabForSort = appState.tabs.find(tab => tab.id === appState.activeTabId);
                     if (currentActiveTabForSort && currentActiveTabForSort.tasks) {
+                        // event.oldDraggableIndex と event.newDraggableIndex を使用
                         const movedTask = currentActiveTabForSort.tasks.splice(event.oldDraggableIndex, 1)[0];
                         currentActiveTabForSort.tasks.splice(event.newDraggableIndex, 0, movedTask);
                         saveState();
+                        // UIの即時反映のため、タスクリストを再描画
+                        // (SortableがDOMを直接変更するが、appStateとの一貫性のため再描画を推奨)
                         renderTasksForActiveTab();
                     }
                 }
@@ -186,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- イベントハンドラ --- (変更なし)
+    // --- イベントハンドラ --- (変更なし、ただしhandleAddTask/handleDeleteTask/handleToggleTaskDoneがrenderTasksForActiveTabを呼ぶことを確認)
     function handleAddTab() {
         const newTabName = newTabNameInput.value.trim();
         if (newTabName) {
@@ -233,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleSwitchTab(tabId) {
         appState.activeTabId = tabId;
         saveState();
-        render();
+        render(); // render全体を呼ぶことで、タブのactive状態とタスクリストが更新される
     }
 
     function handleAddTask() {
@@ -248,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeTab.tasks.push(newTask);
             newTaskTextInput.value = '';
             saveState();
-            renderTasksForActiveTab();
+            renderTasksForActiveTab(); // 現在のタブのタスクのみ再描画
         } else {
             alert('タスクの内容を入力してください。');
         }
