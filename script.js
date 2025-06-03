@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM要素の取得 (既存のものをそのまま利用)
+    // DOM要素の取得 (変更なし)
     const newTabNameInput = document.getElementById('new-tab-name-input');
     const addTabButton = document.getElementById('add-tab-button');
     const tabsContainer = document.getElementById('tabs-container');
@@ -10,18 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskListContainer = document.getElementById('task-list-container');
     const noActiveTabMessage = document.getElementById('no-active-tab-message');
 
-    // アプリケーションの状態 (既存のものをそのまま利用)
+    // アプリケーションの状態 (変更なし)
     let appState = {
         tabs: [],
         activeTabId: null,
     };
 
-    // --- ユーティリティ関数 --- (既存のものをそのまま利用)
+    // --- ユーティリティ関数 --- (変更なし)
     function generateId() {
         return `id-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 5)}`;
     }
 
-    // --- localStorage関連 --- (既存のものをそのまま利用)
+    // --- localStorage関連 --- (変更なし)
     function saveState() {
         localStorage.setItem('todoAppState', JSON.stringify(appState));
     }
@@ -41,12 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- レンダリング関数 --- (既存のものをそのまま利用)
-    // render(), renderTabs(), renderTasksForActiveTab(), updateNoActiveTabMessage(), updateCurrentTabContentVisibility()
-    // initializeTabsSortable(), initializeTasksSortable() は変更なし
+    // --- レンダリング関数 ---
     function render() {
         renderTabs();
-        renderTasksForActiveTab();
+        renderTasksForActiveTab(); // この中でタスクのSortableも初期化される
         updateNoActiveTabMessage();
         updateCurrentTabContentVisibility();
     }
@@ -93,16 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeTab.tasks.forEach(task => {
                     const taskItem = document.createElement('li');
                     taskItem.className = 'task-item';
-                    taskItem.dataset.taskId = task.id;
+                    taskItem.dataset.taskId = task.id; // SortableJSがアイテムを識別するためにも利用可能
                     if (task.done) {
                         taskItem.classList.add('done');
                     }
 
                     const taskContentDiv = document.createElement('div');
-                    // v2.0時点では、taskContentDivが直接チェックボックスとテキストを含んでいたと想定
-                    // (もしドラッグハンドル版に戻すなら、その構造に合わせる)
-                    // ここではv2.0 (ハンドルなし、.task-contentクラスがあったと仮定) の構造を想定
-                    taskContentDiv.className = 'task-content'; // このクラス名はv2.1のCSSでスタイリングされている想定
+                    taskContentDiv.className = 'task-content';
 
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
@@ -125,27 +120,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     taskItem.appendChild(deleteButton);
                     taskListContainer.appendChild(taskItem);
                 });
+            } else {
+                // タスクがない場合のメッセージなどをここに表示しても良い
             }
-            initializeTasksSortable();
+            initializeTasksSortable(); // ★タスクアイテムが描画された後にSortableを初期化
         } else {
             currentTabTitle.textContent = '';
-            if (tasksSortableInstance) {
+            if (tasksSortableInstance) { // アクティブなタブがない場合はタスクのSortableインスタンスを破棄
                 tasksSortableInstance.destroy();
                 tasksSortableInstance = null;
             }
         }
     }
 
-    function updateNoActiveTabMessage() {
+    function updateNoActiveTabMessage() { // (変更なし)
         noActiveTabMessage.style.display = appState.activeTabId ? 'none' : 'block';
     }
-    function updateCurrentTabContentVisibility() {
+    function updateCurrentTabContentVisibility() { // (変更なし)
         currentTabContent.style.display = appState.activeTabId ? 'block' : 'none';
     }
 
 
+    // --- SortableJS 初期化 ---
     let tabsSortableInstance = null;
-    function initializeTabsSortable() {
+    function initializeTabsSortable() { // (変更なし)
         if (tabsSortableInstance) {
             tabsSortableInstance.destroy();
         }
@@ -165,20 +163,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeTasksSortable() {
         if (tasksSortableInstance) {
             tasksSortableInstance.destroy();
-            tasksSortableInstance = null;
+            tasksSortableInstance = null; // 明示的にnullを代入
         }
         const activeTab = appState.tabs.find(tab => tab.id === appState.activeTabId);
+        // タスクリストコンテナに実際にタスクアイテムが存在する場合のみSortableを初期化
         if (activeTab && taskListContainer.children.length > 0) {
             tasksSortableInstance = Sortable.create(taskListContainer, {
                 animation: 150,
-                draggable: '.task-item',
-                // handle: '.drag-handle', // v2.0時点ではハンドルなし
+                draggable: '.task-item', // このクラス名を持つ要素がドラッグ可能になる
                 onEnd: (event) => {
+                    // onEndイベント内で再度アクティブタブを取得して操作するのが安全
                     const currentActiveTabForSort = appState.tabs.find(tab => tab.id === appState.activeTabId);
                     if (currentActiveTabForSort && currentActiveTabForSort.tasks) {
+                        // event.oldDraggableIndex と event.newDraggableIndex を使用
                         const movedTask = currentActiveTabForSort.tasks.splice(event.oldDraggableIndex, 1)[0];
                         currentActiveTabForSort.tasks.splice(event.newDraggableIndex, 0, movedTask);
                         saveState();
+                        // UIの即時反映のため、タスクリストを再描画
+                        // (SortableがDOMを直接変更するが、appStateとの一貫性のため再描画を推奨)
                         renderTasksForActiveTab();
                     }
                 }
@@ -186,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- イベントハンドラ --- (既存のものをそのまま利用)
+    // --- イベントハンドラ --- (変更なし、ただしhandleAddTask/handleDeleteTask/handleToggleTaskDoneがrenderTasksForActiveTabを呼ぶことを確認)
     function handleAddTab() {
         const newTabName = newTabNameInput.value.trim();
         if (newTabName) {
@@ -233,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleSwitchTab(tabId) {
         appState.activeTabId = tabId;
         saveState();
-        render();
+        render(); // render全体を呼ぶことで、タブのactive状態とタスクリストが更新される
     }
 
     function handleAddTask() {
@@ -248,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeTab.tasks.push(newTask);
             newTaskTextInput.value = '';
             saveState();
-            renderTasksForActiveTab();
+            renderTasksForActiveTab(); // 現在のタブのタスクのみ再描画
         } else {
             alert('タスクの内容を入力してください。');
         }
@@ -275,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- イベントリスナーの登録 --- (既存のものをそのまま利用)
+    // --- イベントリスナーの登録 --- (変更なし)
     addTabButton.addEventListener('click', handleAddTab);
     newTabNameInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') handleAddTab();
@@ -285,31 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.key === 'Enter') handleAddTask();
     });
 
-    // --- ★★★ ズームリセット機能の追加 ★★★ ---
-    function resetZoomOnBlur() {
-        const viewportMeta = document.querySelector('meta[name="viewport"]');
-        if (viewportMeta) {
-            // 一時的にズームを固定し、スケールをリセット
-            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-            
-            // 短い遅延の後、ユーザーが再度ズームできるようにviewport設定を戻す
-            // (元のcontent属性を保存しておいて戻すのが理想的だが、ここでは標準的な設定に戻す)
-            setTimeout(() => {
-                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
-            }, 50); // 遅延は調整が必要な場合があります
-        }
-    }
-
-    // 対象の入力フィールドにblurイベントリスナーを追加
-    if (newTabNameInput) {
-        newTabNameInput.addEventListener('blur', resetZoomOnBlur);
-    }
-    if (newTaskTextInput) {
-        newTaskTextInput.addEventListener('blur', resetZoomOnBlur);
-    }
-    // --- ★★★ ズームリセット機能ここまで ★★★ ---
-
-    // --- 初期化 --- (既存のものをそのまま利用)
+    // --- 初期化 --- (変更なし)
     loadState();
     if (!appState.activeTabId && appState.tabs.length > 0) {
         appState.activeTabId = appState.tabs[0].id;
