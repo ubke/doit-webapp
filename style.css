@@ -1,7 +1,48 @@
-/* body, .app-container, h1, h2 など、大部分のスタイルは変更なし */
-/* ...（v2.0のstyle.cssの既存のスタイルをここに記述）... */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 20px; /* 狭い画面では少し狭くしても良いかも */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased; /* iOSでのフォントレンダリング改善 */
+    text-rendering: optimizeLegibility; /* フォントレンダリング改善 */
+}
 
-/* 以前のスタイルから変更する可能性のある部分を以下に示します */
+.app-container {
+    background-color: #fff;
+    padding: 20px; /* 狭い画面では少し狭くしても良いかも */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 700px;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.8rem; /* 少し調整 */
+}
+
+h2 {
+    color: #34495e;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 10px;
+    margin-top: 20px;
+    font-size: 1.4rem; /* 少し調整 */
+}
+
+/* タブ作成エリア */
+.tab-creation-area,
+.task-input-area {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 8px; /* 少し詰める */
+}
 
 .tab-creation-area input[type="text"],
 .task-input-area input[type="text"] {
@@ -9,20 +50,194 @@
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 0.95rem; /* デフォルトのフォントサイズ（これは16px以上かもしれません） */
-    min-width: 0;
+    font-size: 0.95rem; /* 少し調整 */
+    min-width: 0; /* ★重要: flexアイテムが縮小できるようにする */
 }
 
-/* ...（その他の既存スタイル）... */
+.tab-creation-area button,
+.task-input-area button {
+    padding: 10px 12px; /* 少し調整 */
+    background-color: #3498db; /* タブ追加ボタンの色 */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem; /* 少し調整 */
+    white-space: nowrap; /* ボタンテキストが縦にならないように */
+    flex-shrink: 0; /* ボタンが潰れないように */
+}
+.task-input-area button {
+    background-color: #2ecc71; /* タスク追加ボタンの色 */
+}
 
+.tab-creation-area button:hover,
+.task-input-area button:hover {
+    opacity: 0.85;
+}
+
+
+/* タブ表示エリア */
+.tabs-container {
+    display: flex;
+    flex-wrap: wrap; /* タブが画面幅に応じて折り返すように */
+    gap: 8px;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.tab-button {
+    padding: 8px 10px; /* 少し調整 */
+    border: 1px solid #bdc3c7;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem; /* 少し調整 */
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* アイコンとテキストの間 */
+    min-width: 0; /* ★重要: flexアイテムが縮小できるようにする */
+}
+
+.tab-button.active {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+.tab-button.active .tab-delete-button { /* アクティブタブの削除ボタン色 */
+    color: white;
+    opacity: 0.8;
+}
+
+
+.tab-button:not(.active):hover {
+    background-color: #e0e6e8;
+}
+
+.tab-name {
+    display: inline-block;
+    white-space: nowrap; /* 通常はタブ名を改行しない */
+    overflow: hidden; /* はみ出た部分を隠す */
+    text-overflow: ellipsis; /* はみ出た部分を...で表示 */
+    max-width: 120px; /* タブ名の最大幅（必要に応じて調整） */
+    /* または、以下のようにして折り返しを許容する */
+    /* white-space: normal; */
+    /* word-break: break-word; */
+    /* overflow-wrap: break-word; */
+    /* min-width: 0;  (親がflexで、この要素が縮んでほしい場合) */
+}
+
+
+.tab-delete-button {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-weight: bold;
+    padding: 0 0 0 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    opacity: 0.7;
+    flex-shrink: 0; /* 削除ボタンが潰れないように */
+}
+
+.tab-delete-button:hover {
+    opacity: 1;
+}
+
+
+/* タスクリスト */
+.task-list-container {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* .task-content-container と .task-delete-button を左右に配置 */
+    padding: 10px 12px; /* 少し調整 */
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s;
+}
+
+.task-item:hover {
+    background-color: #f9f9f9;
+}
+
+.task-item.done .task-text {
+    text-decoration: line-through;
+    color: #95a5a6;
+}
+
+/* script.js (v2.0) で taskContentDiv のクラス名が .task-content と仮定 */
+.task-content { /* チェックボックスとテキストを囲むラッパー */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* チェックボックスとテキストの間 */
+    flex-grow: 1; /* 利用可能なスペースを占める */
+    min-width: 0; /* ★重要: このコンテナが縮小できるようにする */
+}
+
+.task-item input[type="checkbox"] {
+    margin-right: 0; /* gapで調整するので不要 */
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0; /* チェックボックスが潰れないように */
+}
+
+.task-text {
+    font-size: 0.95rem; /* 少し調整 */
+    color: #2c3e50;
+    line-height: 1.4; /* 行の高さを少し確保 */
+    /* ★重要: テキストの折り返し設定 */
+    word-break: break-word; /* 単語の途中でも折り返す（英単語など） */
+    overflow-wrap: break-word; /* 長い単語やURLがはみ出るのを防ぐ */
+    min-width: 0; /* ★重要: テキスト要素自体も縮小できるようにする */
+}
+
+.task-delete-button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    white-space: nowrap; /* ボタンテキストが縦にならないように */
+    flex-shrink: 0; /* ボタンが潰れないように */
+}
+
+.task-delete-button:hover {
+    background-color: #c0392b;
+}
+
+/* SortableJS用スタイル */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #cce5ff;
+}
+
+.no-active-tab-message {
+    text-align: center;
+    color: #7f8c8d;
+    margin-top: 30px;
+    font-size: 1.1rem;
+}
 
 /* iPhone X/XS (幅375px) やそれに近い幅のデバイス向けの調整 */
 @media (max-width: 400px) {
     body {
-        padding: 10px;
+        padding: 10px; /* bodyのパディングを少し減らす */
     }
     .app-container {
-        padding: 15px;
+        padding: 15px; /* appコンテナのパディングを少し減らす */
     }
     h1 {
         font-size: 1.6rem;
@@ -33,30 +248,30 @@
 
     .tab-creation-area input[type="text"],
     .task-input-area input[type="text"] {
-        /* font-size: 0.9rem; */ /* 以前の設定例 (これが16px未満だった可能性) */
-        font-size: 16px; /* ★iOSでの自動ズームを防ぐため、16pxに設定 */
-        /* 必要であれば、paddingや高さを微調整してください */
+        font-size: 0.9rem;
     }
 
     .tab-creation-area button,
     .task-input-area button,
     .tab-button,
     .task-delete-button {
-        font-size: 0.85rem;
-        padding: 8px 10px;
+        font-size: 0.85rem; /* ボタン類のフォントを少し小さく */
+        padding: 8px 10px; /* ボタンのパディングも少し調整 */
     }
-    .task-input-area button {
+    .task-input-area button { /* タスク追加ボタンは少し目立たせる */
         padding: 8px 12px;
     }
 
+
     .tab-name {
-        max-width: 90px;
+        max-width: 90px; /* タブ名をさらに短くするか、折り返しを許容する */
+        /* white-space: normal; */ /* 折り返しを許容する場合 */
     }
 
     .task-item {
-        padding: 8px 10px;
+        padding: 8px 10px; /* タスクアイテムのパディングを少し減らす */
     }
     .task-text {
-        font-size: 0.9rem; /* こちらは入力フィールドではないので、必要に応じて調整 */
+        font-size: 0.9rem; /* タスクテキストのフォントを少し小さく */
     }
 }
