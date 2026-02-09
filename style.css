@@ -22,25 +22,21 @@ body {
 }
 
 .app-title {
-    /* font-familyの解説:
-       1. "Times New Roman" ... セリフ体の定番。太字にすると非常に力強いです。
-       2. "Georgia" ... 標準で太めに設計された読みやすいセリフ体。
-       3. serif ... 念のための汎用セリフ体指定。
-    */
-    font-family: "Times New Roman", "Georgia", serif;
+    /* Meiryo UIを最優先に指定 */
+    font-family: "Meiryo UI", "Meiryo", "MS PGothic", sans-serif;
     
-    /* フォントの太さを最大級に設定 */
-    font-weight: 900; 
+    /* 太さを強調 */
+    font-weight: bold;
     
-    /* 文字のサイズ（必要に応じて調整してください） */
-    font-size: 2.5rem; 
+    /* しっかりした見た目にするため、サイズを少し大きめに設定 */
+    font-size: 2.8rem;
     
-    /* 文字の間隔を少し広げると、より「ロゴ」らしい高級感が出ます */
-    letter-spacing: 0.05em;
+    /* 文字の間隔をわずかに詰めると、より力強く「ロゴ」らしくなります */
+    letter-spacing: -0.02em;
     
     color: #333;
-    margin-bottom: 20px;
     text-align: center;
+    margin-bottom: 25px;
 }
 
 h1 {
@@ -297,5 +293,6 @@ h2 {
         font-size: 0.9rem; /* タスクテキストのフォントを少し小さく */
     }
 }
+
 
 
