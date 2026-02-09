@@ -22,11 +22,25 @@ body {
 }
 
 .app-title {
-    /* 「I」の形がはっきりするフォントセット */
-    font-family: "Georgia", "Times New Roman", serif; 
-    font-weight: bold;
-    color: #333; /* 現在の色味に合わせて調整してください */
+    /* font-familyの解説:
+       1. "Times New Roman" ... セリフ体の定番。太字にすると非常に力強いです。
+       2. "Georgia" ... 標準で太めに設計された読みやすいセリフ体。
+       3. serif ... 念のための汎用セリフ体指定。
+    */
+    font-family: "Times New Roman", "Georgia", serif;
+    
+    /* フォントの太さを最大級に設定 */
+    font-weight: 900; 
+    
+    /* 文字のサイズ（必要に応じて調整してください） */
+    font-size: 2.5rem; 
+    
+    /* 文字の間隔を少し広げると、より「ロゴ」らしい高級感が出ます */
+    letter-spacing: 0.05em;
+    
+    color: #333;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 h1 {
@@ -283,4 +297,5 @@ h2 {
         font-size: 0.9rem; /* タスクテキストのフォントを少し小さく */
     }
 }
+
 
