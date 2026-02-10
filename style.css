@@ -105,17 +105,18 @@ h2 {
 }
 
 .tab-button {
-    padding: 8px 10px; /* 少し調整 */
+    padding: 8px 10px;
     border: 1px solid #bdc3c7;
     background-color: #ecf0f1;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem; /* 少し調整 */
+    font-size: 0.9rem;
     transition: background-color 0.2s, color 0.2s;
     display: flex;
     align-items: center;
     gap: 5px; /* アイコンとテキストの間 */
-    min-width: 0; /* ★重要: flexアイテムが縮小できるようにする */
+    min-width: 0; /*  flexアイテムが縮小できるようにする */
+    touch-action: manipulation;
 }
 
 .tab-button.active {
@@ -293,6 +294,7 @@ h2 {
         font-size: 0.9rem; /* タスクテキストのフォントを少し小さく */
     }
 }
+
 
 
 
