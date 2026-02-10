@@ -146,9 +146,29 @@ document.addEventListener('DOMContentLoaded', () => {
         tabsSortableInstance = Sortable.create(tabsContainer, {
             animation: 150,
             draggable: '.tab-button',
-            delay: 150, // ★★★ タップ競合を防ぐために遅延を追加 ★★★
-            delayOnTouchOnly: true, // ★★★ この遅延をタッチ操作のみに適用 ★★★
+            delay: 150, // タップ競合を防ぐために遅延を追加
+            delayOnTouchOnly: true, // この遅延をタッチ操作のみに適用
+
+            // 1. オートスクロールの設定を追加
+            scroll: true,        // 画面端に来たら自動でスクロールする機能を有効化
+            scrollSensitivity: 150, // 画面の端から150pxの範囲に入ったらスクロール開始（広めに取ると操作しやすいです）
+            scrollSpeed: 20,     // スクロールのスピード
+
+            // 2. ドラッグ開始時の処理（スクロールロック）
+            onStart: function(evt) {
+                // ドラッグ中は、画面全体の「指によるスクロール」を禁止する
+                document.body.style.overflow = 'hidden'; 
+                // iOSなどでバウンス（引っ張り）効果が出るのを防ぐ
+                document.body.style.touchAction = 'none';
+            },
+
+            // 3. ドラッグ終了時の処理（ロック解除）
             onEnd: (event) => {
+                // ドラッグが終わったら、スクロール禁止を解除して元に戻す
+                document.body.style.overflow = '';
+                document.body.style.touchAction = '';
+
+                // データの並び替え処理
                 const movedTab = appState.tabs.splice(event.oldDraggableIndex, 1)[0];
                 appState.tabs.splice(event.newDraggableIndex, 0, movedTab);
                 saveState();
@@ -289,3 +309,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     render();
 });
+
