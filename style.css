@@ -116,7 +116,6 @@ h2 {
     align-items: center;
     gap: 5px; /* アイコンとテキストの間 */
     min-width: 0; /*  flexアイテムが縮小できるようにする */
-    touch-action: manipulation;
 }
 
 .tab-button.active {
@@ -294,6 +293,7 @@ h2 {
         font-size: 0.9rem; /* タスクテキストのフォントを少し小さく */
     }
 }
+
 
 
 
