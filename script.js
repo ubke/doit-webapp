@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             animation: 150,
             draggable: '.tab-button',
             delay: 150, // タップ競合を防ぐために遅延を追加
-            delayOnTouchOnly: true; // この遅延をタッチ操作のみに適用
+            delayOnTouchOnly: true, // この遅延をタッチ操作のみに適用
 
             // 1. オートスクロールの設定を追加
             //scroll: true,        // 画面端に来たら自動でスクロールする機能を有効化
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 //document.body.style.overflow = 'hidden'; 
                 // iOSなどでバウンス（引っ張り）効果が出るのを防ぐ
                 //document.body.style.touchAction = 'none';
-            },
+            //},
 
             // 3. ドラッグ終了時の処理（ロック解除）
             onEnd: (event) => {
@@ -309,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     render();
 });
+
 
 
 
