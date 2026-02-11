@@ -1,4 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // パスワードロック機能
+    const SECRET_PASSWORD = "Dodo1111"; // ←★ここにnoteで教えるパスワードを設定してください
+
+    const authScreen = document.getElementById('auth-screen');
+    const passwordInput = document.getElementById('password-input');
+    const unlockButton = document.getElementById('unlock-button');
+    const authErrorMessage = document.getElementById('auth-error-message');
+
+    // すでにパスワード解除済みかチェック（ローカルストレージに記録があれば画面を消す）
+    if (localStorage.getItem('doit_authenticated') === 'true') {
+        authScreen.style.display = 'none';
+    }
+
+    // 解除ボタンを押した時の処理
+    function attemptUnlock() {
+        if (passwordInput.value === SECRET_PASSWORD) {
+            // パスワード正解：記録を残して画面を隠す
+            localStorage.setItem('doit_authenticated', 'true');
+            authScreen.style.display = 'none';
+        } else {
+            // パスワード間違い：エラーメッセージを表示
+            authErrorMessage.style.display = 'block';
+            passwordInput.value = ''; // 入力欄を空にする
+        }
+    }
+
+    unlockButton.addEventListener('click', attemptUnlock);
+
+    // Enterキーを押しても解除できるようにする
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            attemptUnlock();
+        }
+    });
+
     // DOM要素の取得
     const newTabNameInput = document.getElementById('new-tab-name-input');
     const addTabButton = document.getElementById('add-tab-button');
@@ -222,9 +257,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabToDelete = appState.tabs.find(t => t.id === tabIdToDelete);
         if (!tabToDelete) return;
 
+        // 1回目の確認ポップアップ
         if (!confirm(`タブ「${tabToDelete.name}」を削除しますか？このタブのタスクも全て削除されます。`)) {
-            return;
+            return; // キャンセルが押されたらここで処理を中止
         }
+
+        //2回目の確認ポップアップ
+        if (!confirm(`本当に、このタブを削除しますか？このタブのタスクも全て削除されてしまいますよ？`)) {
+            return; // キャンセルが押されたらここで処理を中止
+        }
+
+        // 両方のポップアップで「OK」が押された場合のみ、以下の削除処理が実行される
         appState.tabs = appState.tabs.filter(tab => tab.id !== tabIdToDelete);
         if (appState.activeTabId === tabIdToDelete) {
             appState.activeTabId = appState.tabs.length > 0 ? appState.tabs[0].id : null;
