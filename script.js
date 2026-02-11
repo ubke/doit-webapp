@@ -149,22 +149,22 @@ document.addEventListener('DOMContentLoaded', () => {
             delay: 150, // タップ競合を防ぐために遅延を追加
             delayOnTouchOnly: true, // この遅延をタッチ操作のみに適用
 
+            //forceFallback: true,   // ネイティブドラッグを無効化
+
             // 1. オートスクロールの設定を追加
             //scroll: true,        // 画面端に来たら自動でスクロールする機能を有効化
             //scrollSensitivity: 150, // 画面の端から150pxの範囲に入ったらスクロール開始（広めに取ると操作しやすいです）
             //scrollSpeed: 20,     // スクロールのスピード
 
-            // 2. ドラッグ開始時の処理（スクロールロック）
             //onStart: function(evt) {
-                // ドラッグ中は、画面全体の「指によるスクロール」を禁止する
-                //document.body.style.overflow = 'hidden'; 
-                // iOSなどでバウンス（引っ張り）効果が出るのを防ぐ
+                // ドラッグ開始時に画面スクロールを完全にロック
+                //document.body.style.overflow = 'hidden';
                 //document.body.style.touchAction = 'none';
             //},
 
             // 3. ドラッグ終了時の処理（ロック解除）
             onEnd: (event) => {
-                // ドラッグが終わったら、スクロール禁止を解除して元に戻す
+                // ドラッグ終了時にロック解除
                 //document.body.style.overflow = '';
                 //document.body.style.touchAction = '';
 
@@ -309,7 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     render();
 });
-
 
 
 
