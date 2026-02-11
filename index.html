@@ -17,6 +17,16 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-modal">
+            <h2 class="app-title" style="border:none; margin-top:0;">Do It !</h2>
+            <p style="color: #7f8c8d; font-size: 0.9em;">アプリを利用するにはパスワードを入力してください。</p>
+            <input type="password" id="password-input" placeholder="パスワードを入力">
+            <button id="unlock-button">解除する</button>
+            <p id="auth-error-message" style="color: #e74c3c; display: none; margin-top: 10px; font-size: 0.9em;">パスワードが間違っています。</p>
+        </div>
+    </div>
+
     <div class="app-container">
         <h1 class="app-title">Do It ！</h1>
 
@@ -47,8 +57,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
