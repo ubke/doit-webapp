@@ -116,6 +116,8 @@ h2 {
     align-items: center;
     gap: 5px; /* アイコンとテキストの間 */
     min-width: 0; /*  flexアイテムが縮小できるようにする */
+
+    touch-action: none; /*  その要素上でのブラウザによる自動スクロール判定が完全に無効化 */
 }
 
 .tab-button.active {
@@ -181,6 +183,9 @@ h2 {
     border-radius: 4px;
     margin-bottom: 8px;
     transition: background-color 0.2s;
+
+    /* ブラウザのスクロール判定を無効化し、ドラッグを優先させる */
+    touch-action: none;
 }
 
 .task-item:hover {
@@ -293,8 +298,3 @@ h2 {
         font-size: 0.9rem; /* タスクテキストのフォントを少し小さく */
     }
 }
-
-
-
-
-
