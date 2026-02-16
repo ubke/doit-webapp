@@ -1,3 +1,9 @@
+/* 横揺れとiOSの横スワイプアクションを完全に防止 */
+html, body {
+    overflow-x: hidden; /* 横方向のスクロールを物理的に切り捨てる */
+    overscroll-behavior-x: none; /* iOS特有の横スワイプによるバウンス（揺れ）を無効化 */
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #f4f7f6;
@@ -348,6 +354,7 @@ h2 {
 .auth-modal button:hover {
     background-color: #2980b9;
 }
+
 
 
 
