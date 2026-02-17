@@ -34,6 +34,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ダブルタップによるズームを防止しつつ、タブ名変更機能は生かす
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (event) => {
+        const now = (new Date()).getTime();
+        
+        // 0.3秒以内の連続タップ（ダブルタップ）を検知
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault(); // ここでiOSの強制ズームを物理的に防ぐ
+
+            // もしタップされたのが「タブ名」だったら、名前変更処理を直接呼び出す
+            if (event.target.classList.contains('tab-name')) {
+                const tabButton = event.target.closest('.tab-button');
+                if (tabButton) {
+                    const tabId = tabButton.dataset.tabId;
+                    const tabName = event.target.textContent;
+                    handleRenameTab(tabId, tabName); // 名前変更関数を実行！
+                }
+            }
+        }
+        lastTouchEnd = now;
+    }, { passive: false });
+
+    // ピンチイン・ピンチアウト（2本指での操作）を防止
+    document.addEventListener('touchmove', (event) => {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
     // DOM要素の取得
     const newTabNameInput = document.getElementById('new-tab-name-input');
     const addTabButton = document.getElementById('add-tab-button');
