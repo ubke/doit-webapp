@@ -1,3 +1,8 @@
+/* 全体のサイズ計算を統一し、はみ出しを防ぐ */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* 横揺れとiOSの横スワイプアクションを完全に防止 */
 html, body {
     overflow-x: hidden; /* 横方向のスクロールを物理的に切り捨てる */
@@ -354,7 +359,6 @@ h2 {
 .auth-modal button:hover {
     background-color: #2980b9;
 }
-
 
 
 
